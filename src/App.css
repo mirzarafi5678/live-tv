@@ -99,3 +99,6 @@
   .video-player { height: 48vh }
   .tv-sidebar, .tv-epg { display:none }
 }
+
+/* hidden audio used for background playback */
+.hidden-audio { display:none !important }

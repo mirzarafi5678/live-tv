@@ -10,6 +10,7 @@ function App() {
   const [selectedChannel, setSelectedChannel] = useState('bein1')
   const hlsRef = useRef(null)
   const [theater, setTheater] = useState(false)
+  const audioRef = useRef(null)
 
   // Minimal program guide: only beIN SPORTS 1
   const channels = {
@@ -130,6 +131,43 @@ function App() {
       setError('HLS not supported on this browser')
     }
   }, [])
+  
+  // When the page is hidden, attach HLS to a hidden audio element so audio keeps playing
+  // When visible, reattach to the video element so the user sees the stream.
+  useEffect(() => {
+    const video = videoRef.current
+    const audio = audioRef.current
+    const getHls = () => hlsRef.current
+    if (!video || !audio) return
+
+    const handleVisibility = () => {
+      const hls = getHls()
+      if (!hls) return
+      try {
+        if (document.hidden) {
+          // switch to audio element to prioritise audio continuity
+          hls.detachMedia()
+          hls.attachMedia(audio)
+          // try to play audio
+          audio.muted = false
+          audio.play().catch(() => {})
+        } else {
+          // switch back to video for visible playback
+          hls.detachMedia()
+          hls.attachMedia(video)
+          video.play().catch(() => {})
+        }
+      } catch (e) {
+        // ignore attach/detach errors
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    // run once to ensure correct attachment for initial visibility
+    handleVisibility()
+
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
 
   return (
     <div className={`live-tv-container ${theater ? 'theater' : ''}`}>
@@ -161,6 +199,9 @@ function App() {
                 </button>
               ))}
             </div>
+
+            {/* Hidden audio element used to continue audio when page is backgrounded */}
+            <audio ref={audioRef} className="hidden-audio" />
           </div>
         </div>
 
@@ -171,6 +212,7 @@ function App() {
               <video
                 ref={videoRef}
                 controls
+                playsInline
                 className="video-player"
               ></video>
               {!isPlaying && (
