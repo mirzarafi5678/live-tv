@@ -116,15 +116,31 @@ function App() {
   return (
     <div className="live-tv-container">
       <div className="channel-header">
-        <h1>🔴 Bein Sports 1</h1>
+        <div className="header-content">
+          <div className="channel-info">
+            <h1 className="channel-name">beIN SPORTS 1</h1>
+            <p className="channel-category">Premium Sports Channel</p>
+          </div>
+          <div className="header-badges">
+            {isPlaying && <span className="badge badge-live">● LIVE</span>}
+            <span className="badge badge-hd">HD</span>
+          </div>
+        </div>
       </div>
       {error && <div className="error-message">{error}</div>}
-      <video
-        ref={videoRef}
-        controls
-        className="video-player"
-      ></video>
-      {isPlaying && <div className="status">● LIVE</div>}
+      <div className="player-container">
+        <video
+          ref={videoRef}
+          controls
+          className="video-player"
+        ></video>
+      </div>
+      <div className="channel-footer">
+        <div className="footer-info">
+          <span className="info-item">🎬 Premium Sports Content</span>
+          <span className="info-item">📺 High Definition Streaming</span>
+        </div>
+      </div>
     </div>
   )
 }
