@@ -180,7 +180,7 @@ function App() {
         {/* Left Sidebar - Channel Guide */}
         <div className="tv-sidebar">
           <div className="sidebar-section">
-            <h3 className="sidebar-title">CHANNELS</h3>
+            <h3 className="sidebar-title">CHANNELS+</h3>
             <div className="channel-list">
               {Object.entries(channels).map(([key, ch]) => (
                 <button
