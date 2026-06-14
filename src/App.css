@@ -1,179 +1,101 @@
+/* App-specific styles: layout and components for the live TV UI */
+
 .live-tv-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  background: linear-gradient(to bottom, #0a0a0a 0%, #1a1a1a 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  position: relative;
-  overflow: hidden;
+  min-height: 100vh;
+  gap: 12px;
 }
 
-.channel-header {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  padding: 24px 28px;
-  border-bottom: 4px solid #ff0000;
-  z-index: 10;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
-}
-
-.header-content {
+.tv-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
-.channel-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.tv-logo { font-weight: 700; font-size: 18px; }
+.tv-time { font-size: 13px; color: var(--muted); }
+
+.tv-main-content {
+  display: grid;
+  /* narrow sidebars so center becomes dominant rectangular player */
+  grid-template-columns: 80px 1fr 80px;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
 }
 
-.channel-header h1 {
-  margin: 0;
-  color: #fff;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #ff0000, #cc0000);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.tv-sidebar, .tv-epg {
+  background: rgba(255,255,255,0.02);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  max-height: calc(100vh - 180px);
+  overflow: auto;
+  width: 80px;
 }
 
-.channel-category {
-  margin: 0;
-  color: #aaa;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
+.sidebar-title, .epg-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 
-.header-badges {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.channel-list { display:flex; flex-direction:column; gap:8px; align-items:center }
+.channel-btn {
+  display:flex; align-items:center; gap:8px; padding:6px; border-radius:6px;
+  background: transparent; border:1px solid transparent; color:var(--text); text-align:left; width:100%; justify-content:center
 }
+.channel-btn:hover { background: rgba(255,255,255,0.02); }
+.channel-btn.active { border-left: 6px solid var(--accent); background: rgba(255,255,255,0.03); }
+.ch-number { width:36px; font-weight:700; opacity:0.95; text-align:center }
+.ch-info { display:none }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
+.tv-player-section { display:flex; flex-direction:column; gap:12px; }
+.player-wrapper { background: rgba(0,0,0,0.45); padding:8px; border-radius:8px; display:flex; justify-content:center }
+.player-container { position:relative; border-radius:6px; overflow:hidden; background:#000; width:100% }
+.video-player { width:100%; height: min(56vh, 640px); display:block; background:#000; object-fit:cover }
+
+.play-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none }
+.play-button { background: rgba(255,255,255,0.06); color:var(--text); font-size:48px; padding:18px 24px; border-radius:999px; pointer-events:auto }
+
+.player-overlay { position:absolute; top:10px; left:12px; display:flex; gap:8px }
+.badge { font-size:12px; padding:4px 8px; border-radius:999px; background: rgba(255,255,255,0.04); font-weight:700 }
+.badge-live.active { color: #ff6b6b }
+
+.theater-toggle {
+  margin-left: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 6px 10px;
   border-radius: 6px;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.badge-live {
-  background: #ff0000;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-  animation: pulse 1.5s infinite;
+/* Theater mode: center and enlarge player, hide sidebars */
+.live-tv-container.theater .tv-main-content {
+  grid-template-columns: 0 1fr 0;
 }
+.live-tv-container.theater .tv-sidebar,
+.live-tv-container.theater .tv-epg { display: none }
+.live-tv-container.theater .player-wrapper { padding: 0; background: transparent }
+.live-tv-container.theater .player-container { max-width: 1400px; margin: 0 auto }
+.live-tv-container.theater .video-player { width:100%; aspect-ratio: 16/9; height: auto; max-height: 92vh; object-fit: contain }
 
-.badge-hd {
-  background: rgba(100, 100, 255, 0.8);
-  color: #fff;
-  border: 1px solid #6464ff;
-}
+.error-message { margin-top:8px; color:#ff8b8b; background: rgba(255,0,0,0.05); padding:8px; border-radius:6px }
 
-.error-message {
-  background: linear-gradient(90deg, #8b0000 0%, #cc0000 100%);
-  color: #fff;
-  padding: 14px 24px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 500;
-  border-bottom: 2px solid #ff0000;
-  box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
-}
+.program-info { text-align:left; color:var(--text); padding:8px 4px }
+.program-header { display:flex; align-items:center; justify-content:space-between }
+.program-title { font-size:18px; margin:0 }
+.program-time { font-size:13px; color:var(--muted) }
 
-.player-container {
-  flex: 1;
-  width: 100%;
-  background: #000;
-  position: relative;
-  overflow: hidden;
-}
+.epg-list .epg-item { display:flex; gap:8px; padding:8px 6px; border-bottom:1px solid rgba(255,255,255,0.03) }
+.epg-time { font-size:12px; color:var(--muted); width:80px }
 
-.video-player {
-  width: 100%;
-  height: 100%;
-  background: #000;
-  outline: none;
-  display: block;
-}
-
-.channel-footer {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-  padding: 20px 28px;
-  border-top: 1px solid rgba(255, 0, 0, 0.2);
-  z-index: 5;
-}
-
-.footer-info {
-  display: flex;
-  gap: 30px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.info-item {
-  color: #999;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-  }
-  50% {
-    opacity: 0.7;
-    box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
-  }
-}
-
-@media (max-width: 768px) {
-  .channel-header {
-    padding: 16px 16px;
-  }
-
-  .header-content {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .channel-header h1 {
-    font-size: 24px;
-  }
-
-  .header-badges {
-    align-self: flex-end;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .channel-footer {
-    padding: 16px;
-  }
-
-  .footer-info {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .badge {
-    padding: 6px 12px;
-    font-size: 11px;
-  }
+@media (max-width: 900px) {
+  .tv-main-content { grid-template-columns: 1fr; }
+  .video-player { height: 48vh }
+  .tv-sidebar, .tv-epg { display:none }
 }

@@ -6,7 +6,25 @@ function App() {
   const videoRef = useRef(null)
   const [error, setError] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [selectedChannel, setSelectedChannel] = useState('bein1')
   const hlsRef = useRef(null)
+  const [theater, setTheater] = useState(false)
+
+  // Minimal program guide: only beIN SPORTS 1
+  const channels = {
+    bein1: { name: 'beIN SPORTS 1', category: 'Sports', color: '#ff0000' }
+  }
+
+  // Programs removed per request (no schedule shown)
+  const programs = {
+    bein1: []
+  }
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const video = videoRef.current
@@ -114,31 +132,103 @@ function App() {
   }, [])
 
   return (
-    <div className="live-tv-container">
-      <div className="channel-header">
-        <div className="header-content">
-          <div className="channel-info">
-            <h1 className="channel-name">beIN SPORTS 1</h1>
-            <p className="channel-category">Premium Sports Channel</p>
-          </div>
-          <div className="header-badges">
-            {isPlaying && <span className="badge badge-live">● LIVE</span>}
-            <span className="badge badge-hd">HD</span>
+    <div className={`live-tv-container ${theater ? 'theater' : ''}`}>
+      <div className="tv-header">
+        <div className="tv-logo">📺 LIVE TV</div>
+        <div className="tv-time">{currentTime.toLocaleTimeString()}</div>
+      </div>
+
+      <div className="tv-main-content">
+        {/* Left Sidebar - Channel Guide */}
+        <div className="tv-sidebar">
+          <div className="sidebar-section">
+            <h3 className="sidebar-title">CHANNELS</h3>
+            <div className="channel-list">
+              {Object.entries(channels).map(([key, ch]) => (
+                <button
+                  key={key}
+                  className={`channel-btn ${selectedChannel === key ? 'active' : ''}`}
+                  onClick={() => setSelectedChannel(key)}
+                  style={{
+                    borderLeftColor: selectedChannel === key ? ch.color : 'transparent'
+                  }}
+                >
+                  <span className="ch-number">{key.toUpperCase()}</span>
+                  <div className="ch-info">
+                    <div className="ch-name">{ch.name}</div>
+                    <div className="ch-category">{ch.category}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-      {error && <div className="error-message">{error}</div>}
-      <div className="player-container">
-        <video
-          ref={videoRef}
-          controls
-          className="video-player"
-        ></video>
-      </div>
-      <div className="channel-footer">
-        <div className="footer-info">
-          <span className="info-item">🎬 Premium Sports Content</span>
-          <span className="info-item">📺 High Definition Streaming</span>
+
+        {/* Center - Main Player */}
+        <div className="tv-player-section">
+          <div className="player-wrapper">
+            <div className="player-container">
+              <video
+                ref={videoRef}
+                controls
+                className="video-player"
+              ></video>
+              {!isPlaying && (
+                <div className="play-overlay">
+                  <div className="play-button">▶</div>
+                </div>
+              )}
+            </div>
+
+            {/* Overlay info */}
+            <div className="player-overlay">
+              <div className="overlay-content">
+                <span className={`badge badge-live ${isPlaying ? 'active' : ''}`}>
+                  ● LIVE
+                </span>
+                <span className="badge badge-hd">HD</span>
+                <span className="badge badge-4k">4K READY</span>
+                
+              </div>
+            </div>
+
+            {error && (
+              <div className="error-message">{error}</div>
+            )}
+          </div>
+
+          {/* Current Program Info */}
+          <div className="program-info">
+            <div className="program-header">
+              <h2 className="program-title">
+                {programs[selectedChannel]?.[0]?.title || 'Live TV'}
+              </h2>
+              <span className="program-time">
+                {programs[selectedChannel]?.[0]?.time || 'Now Showing'}
+              </span>
+            </div>
+            <p className="program-description">
+              {programs[selectedChannel]?.[0]?.description || 'Premium content stream'}
+            </p>
+          </div>
+        </div>
+
+        {/* Right Sidebar - EPG */}
+        <div className="tv-epg">
+          <div className="epg-section">
+            <h3 className="epg-title">SCHEDULE</h3>
+            <div className="epg-list">
+              {programs[selectedChannel]?.map((prog, idx) => (
+                <div key={idx} className={`epg-item ${idx === 0 ? 'current' : 'next'}`}>
+                  <div className="epg-time">{prog.time}</div>
+                  <div className="epg-program">
+                    <div className="epg-title">{prog.title}</div>
+                    <div className="epg-desc">{prog.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
